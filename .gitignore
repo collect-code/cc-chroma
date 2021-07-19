@@ -1,0 +1,6 @@
+node_modules/
+
+# ROGER
+.DS_Store
+_bak
+.env

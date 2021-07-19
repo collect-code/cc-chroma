@@ -1,6 +1,6 @@
 specVersion: 0.0.2
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: ChromaFive
@@ -19,7 +19,7 @@ dataSources:
         - Transfer
       abis:
         - name: ChromaFive
-          file: ./abis/ChromaFive.json
+          file: ChromaFive/abis/ChromaFive.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
@@ -29,4 +29,4 @@ dataSources:
           handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-      file: ./src/mapping.ts
+      file: ChromaFive/ChromaFive.wasm
