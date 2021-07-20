@@ -1,4 +1,6 @@
 specVersion: 0.0.2
+description: CHROMA NFT Collection
+repository: https://github.com/collect-code/cc-chroma
 schema:
   file: ./schema.graphql
 dataSources:
@@ -8,25 +10,18 @@ dataSources:
     source:
       address: "0x9089ab744705fe740eed372b9fb824919c9de306"
       abi: ChromaFive
+      startBlock: 8935850
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Approval
-        - ApprovalForAll
-        - OwnershipTransferred
-        - Transfer
+        - Token
+        - User
       abis:
         - name: ChromaFive
           file: ./abis/ChromaFive.json
       eventHandlers:
-        - event: Approval(indexed address,indexed address,indexed uint256)
-          handler: handleApproval
-        - event: ApprovalForAll(indexed address,indexed address,bool)
-          handler: handleApprovalForAll
-        - event: OwnershipTransferred(indexed address,indexed address)
-          handler: handleOwnershipTransferred
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
       file: ./src/mapping.ts

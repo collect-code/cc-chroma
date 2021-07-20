@@ -1,76 +1,55 @@
 import { BigInt } from "@graphprotocol/graph-ts"
-import {
-  ChromaFive,
-  Approval,
-  ApprovalForAll,
-  OwnershipTransferred,
-  Transfer
-} from "../generated/ChromaFive/ChromaFive"
-import { ExampleEntity } from "../generated/schema"
+// Events
+import { ChromaFive, Transfer } from "../generated/ChromaFive/ChromaFive"
+// Entities
+import { Token, User } from "../generated/schema"
 
-export function handleApproval(event: Approval): void {
+
+// Based on the Studio tutorial
+//	https://www.youtube.com/watch?v=HfDgC2oNnwo
+// Typescript library
+//	https://github.com/graphprotocol/graph-ts
+
+export function handleTransfer(event: Transfer): void {
   // Entities can be loaded from the store using a string ID; this ID
   // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from.toHex())
+  // let entity = Token.load(event.transaction.from.toHex())
+	let tokenIdString = event.params.tokenId.toString();
+	let token = Token.load(tokenIdString);
+	if(!token) {
+		// Every CHROMA contract has the exact same ABI
+		let contract = ChromaFive.bind(event.address);
+		let tokenSeries = contract.name();
+		
+		token = new Token(tokenSeries + '_' + tokenIdString);
+		token.tokenId = event.params.tokenId;
+		token.tokenSeries = tokenSeries;
+		token.tokenName = tokenSeries + '#' + (tokenIdString.length==1?'0':'') + tokenIdString;
+		token.mintTime = event.block.timestamp;
+		token.creator = event.params.to.toHexString();
 
-  // Entities only exist after they have been saved to the store;
-  // `null` checks allow to create entities on demand
-  if (entity == null) {
-    entity = new ExampleEntity(event.transaction.from.toHex())
+		updateTokenURI(token as Token, contract.tokenURI(event.params.tokenId));
+		if(token.isBuilt) {
+			token.buildTime = event.block.timestamp;
+			token.builder = event.params.to.toHexString();
+		}
+	}
+	token.owner = event.params.to.toHexString();
+	token.save()
 
-    // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
-  }
-
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.owner = event.params.owner
-  entity.approved = event.params.approved
-
-  // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.balanceOf(...)
-  // - contract.baseURI(...)
-  // - contract.calculatePriceForQuantity(...)
-  // - contract.getApproved(...)
-  // - contract.getConfig(...)
-  // - contract.getOwnedTokens(...)
-  // - contract.getPrices(...)
-  // - contract.getState(...)
-  // - contract.getTokenInfo(...)
-  // - contract.giftCode(...)
-  // - contract.isApprovedForAll(...)
-  // - contract.name(...)
-  // - contract.owner(...)
-  // - contract.ownerOf(...)
-  // - contract.supportsInterface(...)
-  // - contract.symbol(...)
-  // - contract.tokenByIndex(...)
-  // - contract.tokenOfOwnerByIndex(...)
-  // - contract.tokenURI(...)
-  // - contract.totalSupply(...)
+	let user = User.load(event.params.to.toHexString());
+	if(!user) {
+		user = new User(event.params.to.toHexString());
+		user.save();
+	}
 }
 
-export function handleApprovalForAll(event: ApprovalForAll): void {}
-
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
-
-export function handleTransfer(event: Transfer): void {}
+function updateTokenURI(token: Token, tokenURI: string): void {
+	let pixelsPos = tokenURI.indexOf('pixels=');
+	let pixels = (pixelsPos > 0 && tokenURI.length > pixelsPos+7) ? tokenURI.substr(pixelsPos+7) : '';
+	let isBuilt = (pixels.length > 0);
+	token.tokenURI = tokenURI;
+	token.pixels = pixels;
+	token.isSource = !isBuilt;
+	token.isBuilt = isBuilt;
+}

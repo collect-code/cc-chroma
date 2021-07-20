@@ -1,6 +1,22 @@
-type ExampleEntity @entity {
+type Token @entity {
   id: ID!
-  count: BigInt!
-  owner: Bytes! # address
-  approved: Bytes! # address
+  tokenId: BigInt!
+  tokenSeries: String!
+  tokenName: String!
+  mintTime: BigInt!
+  buildTime: BigInt
+  creator: User!
+  owner: User!
+  builder: User
+  tokenURI: String!
+	pixels: String!
+	isSource: Boolean!
+	isBuilt: Boolean!
+}
+
+type User @entity {
+  id: ID!
+  tokens: [Token!]! @derivedFrom(field: "owner")
+  created: [Token!]! @derivedFrom(field: "creator")
+  built: [Token!]! @derivedFrom(field: "builder")
 }
