@@ -78,13 +78,21 @@ export class Token extends Entity {
     this.set("mintTime", Value.fromBigInt(value));
   }
 
-  get buildTime(): BigInt {
+  get buildTime(): BigInt | null {
     let value = this.get("buildTime");
-    return value.toBigInt();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set buildTime(value: BigInt) {
-    this.set("buildTime", Value.fromBigInt(value));
+  set buildTime(value: BigInt | null) {
+    if (value === null) {
+      this.unset("buildTime");
+    } else {
+      this.set("buildTime", Value.fromBigInt(value as BigInt));
+    }
   }
 
   get creator(): string {
@@ -105,13 +113,21 @@ export class Token extends Entity {
     this.set("owner", Value.fromString(value));
   }
 
-  get builder(): string {
+  get builder(): string | null {
     let value = this.get("builder");
-    return value.toString();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set builder(value: string) {
-    this.set("builder", Value.fromString(value));
+  set builder(value: string | null) {
+    if (value === null) {
+      this.unset("builder");
+    } else {
+      this.set("builder", Value.fromString(value as string));
+    }
   }
 
   get tokenURI(): string {
@@ -257,12 +273,12 @@ export class Event extends Entity {
     this.set("eventType", Value.fromString(value));
   }
 
-  get timestamp(): BigInt {
-    let value = this.get("timestamp");
+  get time(): BigInt {
+    let value = this.get("time");
     return value.toBigInt();
   }
 
-  set timestamp(value: BigInt) {
-    this.set("timestamp", Value.fromBigInt(value));
+  set time(value: BigInt) {
+    this.set("time", Value.fromBigInt(value));
   }
 }

@@ -2,7 +2,7 @@ import { BigInt } from "@graphprotocol/graph-ts"
 // Events
 import { ChromaFive, Transfer } from "../generated/ChromaFive/ChromaFive"
 // Entities
-import { Token, User } from "../generated/schema"
+import { Token, User, Event } from "../generated/schema"
 
 
 // Based on the Studio tutorial
@@ -11,12 +11,10 @@ import { Token, User } from "../generated/schema"
 //	https://github.com/graphprotocol/graph-ts
 
 export function handleTransfer(event: Transfer): void {
-  // Entities can be loaded from the store using a string ID; this ID
-  // needs to be unique across all entities of the same type
-  // let entity = Token.load(event.transaction.from.toHex())
 	let tokenIdString = event.params.tokenId.toString();
 	let token = Token.load(tokenIdString);
-	if(!token) {
+	let isNewToken = (!token);
+	if(isNewToken) {
 		// Every CHROMA contract has the exact same ABI
 		let contract = ChromaFive.bind(event.address);
 		let tokenSeries = contract.name();
@@ -42,6 +40,10 @@ export function handleTransfer(event: Transfer): void {
 		user = new User(event.params.to.toHexString());
 		user.save();
 	}
+
+	if(isNewToken) {
+		createEvent('Mint', token as Token, event.block.timestamp);
+	}
 }
 
 function updateTokenURI(token: Token, tokenURI: string): void {
@@ -52,4 +54,12 @@ function updateTokenURI(token: Token, tokenURI: string): void {
 	token.pixels = pixels;
 	token.isSource = !isBuilt;
 	token.isBuilt = isBuilt;
+}
+
+function createEvent(eventType: string, token: Token, time: BigInt): void {
+	let ev = new Event(eventType+'_'+token.id);
+	ev.eventType = eventType;
+	ev.token = token.id;
+	ev.time = time;
+	ev.save();
 }

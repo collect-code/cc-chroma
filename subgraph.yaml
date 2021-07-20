@@ -18,6 +18,7 @@ dataSources:
       entities:
         - Token
         - User
+        - Event
       abis:
         - name: ChromaFive
           file: ./abis/ChromaFive.json
