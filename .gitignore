@@ -1,4 +1,5 @@
 node_modules/
+build/
 
 # ROGER
 .DS_Store
