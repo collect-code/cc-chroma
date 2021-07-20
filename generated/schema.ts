@@ -42,6 +42,15 @@ export class Token extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get contractAddress(): Bytes {
+    let value = this.get("contractAddress");
+    return value.toBytes();
+  }
+
+  set contractAddress(value: Bytes) {
+    this.set("contractAddress", Value.fromBytes(value));
+  }
+
   get tokenId(): BigInt {
     let value = this.get("tokenId");
     return value.toBigInt();
@@ -139,13 +148,21 @@ export class Token extends Entity {
     this.set("tokenURI", Value.fromString(value));
   }
 
-  get pixels(): string {
+  get pixels(): string | null {
     let value = this.get("pixels");
-    return value.toString();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set pixels(value: string) {
-    this.set("pixels", Value.fromString(value));
+  set pixels(value: string | null) {
+    if (value === null) {
+      this.unset("pixels");
+    } else {
+      this.set("pixels", Value.fromString(value as string));
+    }
   }
 
   get isSource(): boolean {

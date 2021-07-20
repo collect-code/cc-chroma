@@ -1,6 +1,6 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt, Address } from "@graphprotocol/graph-ts"
 // Events
-import { ChromaFive, Transfer } from "../generated/ChromaFive/ChromaFive"
+import { ChromaFive, Transfer, BuildCodeCall } from "../generated/ChromaFive/ChromaFive"
 // Entities
 import { Token, User, Event } from "../generated/schema"
 
@@ -20,14 +20,14 @@ export function handleTransfer(event: Transfer): void {
 		let tokenSeries = contract.name();
 		
 		token = new Token(tokenSeries + '_' + tokenIdString);
+		token.contractAddress = event.address;
 		token.tokenId = event.params.tokenId;
 		token.tokenSeries = tokenSeries;
 		token.tokenName = tokenSeries + '#' + (tokenIdString.length==1?'0':'') + tokenIdString;
 		token.mintTime = event.block.timestamp;
 		token.creator = event.params.to.toHexString();
 
-		updateTokenURI(token as Token, contract.tokenURI(event.params.tokenId));
-		if(token.isBuilt) {
+		if(updateTokenURI(token as Token, contract.tokenURI(token.tokenId))) {
 			token.buildTime = event.block.timestamp;
 			token.builder = event.params.to.toHexString();
 		}
@@ -46,14 +46,28 @@ export function handleTransfer(event: Transfer): void {
 	}
 }
 
-function updateTokenURI(token: Token, tokenURI: string): void {
+export function handleBuildCode(call: BuildCodeCall): void {
+	let token = Token.load(call.inputs.tokenId.toString());
+	if(token) {
+		let contract = ChromaFive.bind(token.contractAddress as Address);
+		if(updateTokenURI(token as Token, contract.tokenURI(token.tokenId))) {
+			token.buildTime = call.block.timestamp;
+			token.builder = token.owner;
+			token.save()
+			createEvent('Build', token as Token, call.block.timestamp);
+		}
+	}
+}
+
+function updateTokenURI(token: Token, tokenURI: string): boolean {
 	let pixelsPos = tokenURI.indexOf('pixels=');
-	let pixels = (pixelsPos > 0 && tokenURI.length > pixelsPos+7) ? tokenURI.substr(pixelsPos+7) : '';
+	let pixels = (pixelsPos > 0 ? tokenURI.substr(pixelsPos+7) : '');
 	let isBuilt = (pixels.length > 0);
 	token.tokenURI = tokenURI;
 	token.pixels = pixels;
 	token.isSource = !isBuilt;
 	token.isBuilt = isBuilt;
+	return isBuilt;
 }
 
 function createEvent(eventType: string, token: Token, time: BigInt): void {

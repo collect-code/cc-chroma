@@ -25,4 +25,9 @@ dataSources:
       eventHandlers:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
+      # callHandlers:
+      #   - function: buildCode(uint256)
+      #     handler: handleBuildCode
       file: ./src/mapping.ts
+
+
