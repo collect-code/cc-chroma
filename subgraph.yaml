@@ -54,5 +54,30 @@ dataSources:
       #   - function: buildCode(uint256)
       #     handler: handleBuildCode
       file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: ChromaThree
+    network: rinkeby
+    source:
+      address: "0xcE51Fd21DBEd9a7d44cD987a41bf22EE47ed59f9"
+      abi: ChromaFive
+      startBlock: 8972408
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - Token
+        - User
+        - Event
+      abis:
+        - name: ChromaFive
+          file: ./abis/ChromaFive.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      # callHandlers:
+      #   - function: buildCode(uint256)
+      #     handler: handleBuildCode
+      file: ./src/mapping.ts
 
 
