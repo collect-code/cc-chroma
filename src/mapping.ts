@@ -45,9 +45,10 @@ export function handleTransfer(event: Transfer): void {
 }
 
 export function handleBuildCode(call: BuildCodeCall): void {
-	let token = Token.load(call.inputs.tokenId.toString());
+	let contract = ChromaFive.bind(call.to);
+	let tokenKey = contract.name() + '_' + call.inputs.tokenId.toString();
+	let token = Token.load(tokenKey);
 	if(token) {
-		let contract = ChromaFive.bind(token.contractAddress as Address);
 		if(updateTokenURI(token as Token, contract.tokenURI(token.tokenId))) {
 			token.buildTime = call.block.timestamp;
 			token.builder = token.owner;
