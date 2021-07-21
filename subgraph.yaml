@@ -8,9 +8,9 @@ dataSources:
     name: ChromaFive
     network: rinkeby
     source:
-      address: "0x9089ab744705fe740eed372b9fb824919c9de306"
+      address: "0xc3f4FA5Bf3aef6ae7951b94FB3F6C04f6B08AACa"
       abi: ChromaFive
-      startBlock: 8935850
+      startBlock: 8972408
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
