@@ -11,18 +11,18 @@ import { Token, User, Event } from "../generated/schema"
 //	https://github.com/graphprotocol/graph-ts
 
 export function handleTransfer(event: Transfer): void {
+	// Every CHROMA contract has the exact same ABI
+	let contract = ChromaFive.bind(event.address);
+	let tokenSeries = contract.name();
 	let tokenIdString = event.params.tokenId.toString();
-	let token = Token.load(tokenIdString);
-	let isNewToken = (!token);
-	if(isNewToken) {
-		// Every CHROMA contract has the exact same ABI
-		let contract = ChromaFive.bind(event.address);
-		let tokenSeries = contract.name();
-		
-		token = new Token(tokenSeries + '_' + tokenIdString);
+
+	let tokenKey = tokenSeries + '_' + tokenIdString;
+	let token = Token.load(tokenKey);
+	if(!token) {
+		token = new Token(tokenKey);
 		token.contractAddress = event.address;
-		token.tokenId = event.params.tokenId;
 		token.tokenSeries = tokenSeries;
+		token.tokenId = event.params.tokenId;
 		token.tokenName = tokenSeries + '#' + (tokenIdString.length==1?'0':'') + tokenIdString;
 		token.mintTime = event.block.timestamp;
 		token.creator = event.params.to.toHexString();
@@ -31,6 +31,8 @@ export function handleTransfer(event: Transfer): void {
 			token.buildTime = event.block.timestamp;
 			token.builder = event.params.to.toHexString();
 		}
+
+		createEvent('Mint', token as Token, event.block.timestamp);
 	}
 	token.owner = event.params.to.toHexString();
 	token.save()
@@ -39,10 +41,6 @@ export function handleTransfer(event: Transfer): void {
 	if(!user) {
 		user = new User(event.params.to.toHexString());
 		user.save();
-	}
-
-	if(isNewToken) {
-		createEvent('Mint', token as Token, event.block.timestamp);
 	}
 }
 
