@@ -51,15 +51,6 @@ export class Token extends Entity {
     this.set("contractAddress", Value.fromBytes(value));
   }
 
-  get tokenId(): BigInt {
-    let value = this.get("tokenId");
-    return value.toBigInt();
-  }
-
-  set tokenId(value: BigInt) {
-    this.set("tokenId", Value.fromBigInt(value));
-  }
-
   get tokenSeries(): string {
     let value = this.get("tokenSeries");
     return value.toString();
@@ -67,6 +58,15 @@ export class Token extends Entity {
 
   set tokenSeries(value: string) {
     this.set("tokenSeries", Value.fromString(value));
+  }
+
+  get tokenId(): BigInt {
+    let value = this.get("tokenId");
+    return value.toBigInt();
+  }
+
+  set tokenId(value: BigInt) {
+    this.set("tokenId", Value.fromBigInt(value));
   }
 
   get tokenName(): string {
@@ -148,21 +148,13 @@ export class Token extends Entity {
     this.set("tokenURI", Value.fromString(value));
   }
 
-  get pixels(): string | null {
+  get pixels(): string {
     let value = this.get("pixels");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
+    return value.toString();
   }
 
-  set pixels(value: string | null) {
-    if (value === null) {
-      this.unset("pixels");
-    } else {
-      this.set("pixels", Value.fromString(value as string));
-    }
+  set pixels(value: string) {
+    this.set("pixels", Value.fromString(value));
   }
 
   get isSource(): boolean {
@@ -181,6 +173,15 @@ export class Token extends Entity {
 
   set isBuilt(value: boolean) {
     this.set("isBuilt", Value.fromBoolean(value));
+  }
+
+  get attributes(): string {
+    let value = this.get("attributes");
+    return value.toString();
+  }
+
+  set attributes(value: string) {
+    this.set("attributes", Value.fromString(value));
   }
 }
 
@@ -297,5 +298,98 @@ export class Event extends Entity {
 
   set time(value: BigInt) {
     this.set("time", Value.fromBigInt(value));
+  }
+}
+
+export class Attributes extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Attributes entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Attributes entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Attributes", id.toString(), this);
+  }
+
+  static load(id: string): Attributes | null {
+    return store.get("Attributes", id) as Attributes | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get isSource(): boolean {
+    let value = this.get("isSource");
+    return value.toBoolean();
+  }
+
+  set isSource(value: boolean) {
+    this.set("isSource", Value.fromBoolean(value));
+  }
+
+  get isBuilt(): boolean {
+    let value = this.get("isBuilt");
+    return value.toBoolean();
+  }
+
+  set isBuilt(value: boolean) {
+    this.set("isBuilt", Value.fromBoolean(value));
+  }
+
+  get siblingNumber(): i32 {
+    let value = this.get("siblingNumber");
+    return value.toI32();
+  }
+
+  set siblingNumber(value: i32) {
+    this.set("siblingNumber", Value.fromI32(value));
+  }
+
+  get siblingCount(): i32 {
+    let value = this.get("siblingCount");
+    return value.toI32();
+  }
+
+  set siblingCount(value: i32) {
+    this.set("siblingCount", Value.fromI32(value));
+  }
+
+  get siblingOrder(): string | null {
+    let value = this.get("siblingOrder");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set siblingOrder(value: string | null) {
+    if (value === null) {
+      this.unset("siblingOrder");
+    } else {
+      this.set("siblingOrder", Value.fromString(value as string));
+    }
+  }
+
+  get offspring(): string {
+    let value = this.get("offspring");
+    return value.toString();
+  }
+
+  set offspring(value: string) {
+    this.set("offspring", Value.fromString(value));
   }
 }

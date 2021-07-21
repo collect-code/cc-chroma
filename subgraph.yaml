@@ -19,6 +19,7 @@ dataSources:
         - Token
         - User
         - Event
+        - Attributes
       abis:
         - name: ChromaFive
           file: ./abis/ChromaFive.json
@@ -44,6 +45,7 @@ dataSources:
         - Token
         - User
         - Event
+        - Attributes
       abis:
         - name: ChromaFive
           file: ./abis/ChromaFive.json
@@ -69,6 +71,7 @@ dataSources:
         - Token
         - User
         - Event
+        - Attributes
       abis:
         - name: ChromaFive
           file: ./abis/ChromaFive.json

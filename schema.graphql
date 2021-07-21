@@ -13,6 +13,7 @@ type Token @entity {
 	pixels: String!
 	isSource: Boolean!
 	isBuilt: Boolean!
+	attributes: Attributes!
 }
 
 type User @entity {
@@ -27,4 +28,14 @@ type Event @entity {
 	token: Token!
 	eventType: String!
 	time: BigInt!
+}
+
+type Attributes @entity {
+  id: ID!
+	isSource: Boolean!
+	isBuilt: Boolean!
+	siblingNumber: Int!
+	siblingCount: Int!
+	siblingOrder: String
+	offspring: String!
 }
